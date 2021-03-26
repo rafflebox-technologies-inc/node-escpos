@@ -135,6 +135,7 @@ util.inherits(USB, EventEmitter);
             }
           });
           if (self.endpoint && self.inEndpoint) {
+            self.inEndpoint.startPoll();
             self.emit('connect', self.device);
             callback && callback(null, self);
           } else if (++counter === this.device.interfaces.length && (!self.endpoint || !self.inEndpoint)) {
@@ -165,6 +166,7 @@ USB.prototype.write = function(data, callback){
 };
 
 USB.prototype.read = function (callback) {
+  this.inEndpoint.removeAllListeners('data');
   this.inEndpoint.on('data', function(data) {
     callback && callback(data)
   })
@@ -177,7 +179,7 @@ USB.prototype.close = function(callback){
   if(this.device) {
 
     try {
-
+      this.inEndpoint.stopPoll();
       this.device.close();
       usb.removeAllListeners('detach');
 
