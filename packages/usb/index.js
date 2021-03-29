@@ -179,13 +179,13 @@ USB.prototype.close = function(callback){
   if(this.device) {
 
     try {
-      this.inEndpoint.stopPoll();
-      this.device.close();
-      usb.removeAllListeners('detach');
+      this.inEndpoint.stopPoll(() => {
+        this.device.close();
+        usb.removeAllListeners('detach');
 
-      callback && callback(null);
-      this.emit('close', this.device);
-
+        callback && callback(null);
+        this.emit('close', this.device);
+      });
     }
     catch (e) {
       callback && callback(e);
